@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terra Institute Gate — Immersive Quiz Demo</title>
+  <meta name="description" content="Immersive institute entry: guess language + anchor meaning, earn points, hall of fame." />
+  <style>
+    :root{
+      --void:#000000;
+      --deep:#0a0e14;
+      --surface:#111827;
+      --panel:#0b1220;
+      --border:rgba(255,255,255,.12);
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --good:#10b981;
+      --warn:#f59e0b;
+      --cyan:#00f2ff;
+      --blue:#0080ff;
+      --purple:#8b5cf6;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--void);color:var(--text);line-height:1.45}
+    .bg{position:fixed;inset:0;pointer-events:none;z-index:0;background:
+      radial-gradient(circle at 18% 25%, rgba(0,242,255,.10) 0%, transparent 50%),
+      radial-gradient(circle at 82% 75%, rgba(139,92,246,.08) 0%, transparent 55%);
+      animation:pulse 18s ease-in-out infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:.35}50%{opacity:.65}}
+    .wrap{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:18px}
+
+    .gate{position:sticky;top:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 18px 60px rgba(0,0,0,.45)}
+    .gate-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px;min-width:260px}
+    .drop{width:36px;height:36px;border-radius:999px;background:linear-gradient(135deg,var(--cyan),var(--blue));box-shadow:0 0 0 0 rgba(0,242,255,.35);animation:ping 2.2s ease-in-out infinite;display:grid;place-items:center;font-weight:800;color:#001018}
+    @keyframes ping{0%,100%{box-shadow:0 0 0 0 rgba(0,242,255,.25)}50%{box-shadow:0 0 0 14px rgba(0,242,255,0)}}
+    .title{font-weight:800;letter-spacing:.02em}
+    .subtitle{font-size:.86rem;color:var(--muted)}
+
+    .status{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:999px;padding:8px 12px;background:rgba(255,255,255,.04)}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--warn)}
+    .dot.on{background:var(--good)}
+    .status b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem}
+
+    .grid{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;margin-top:12px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+    .card{border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg,rgba(17,24,39,.9),rgba(11,18,32,.9));padding:12px}
+    .label{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px}
+
+    .stage{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .pill{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85rem;border:1px solid var(--border);background:rgba(255,255,255,.04);border-radius:999px;padding:6px 10px;color:var(--text)}
+
+    .anchor{display:flex;align-items:center;gap:10px;margin-top:10px;border:1px dashed rgba(0,242,255,.35);border-radius:12px;padding:12px;background:rgba(0,242,255,.05)}
+    .anchor-glyph{font-size:2rem;line-height:1}
+    .anchor-meta{display:flex;flex-direction:column;gap:4px}
+    .anchor-meta small{color:var(--muted)}
+
+    .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+    @media(max-width:520px){.opts{grid-template-columns:1fr}}
+    button{cursor:pointer}
+    .btn{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);border-radius:10px;padding:10px 10px;text-align:left;transition:.15s transform,.15s border-color,.15s background}
+    .btn:hover{transform:translateY(-1px);border-color:rgba(0,242,255,.55);background:rgba(0,242,255,.07)}
+    .btn.good{border-color:rgba(16,185,129,.8);background:rgba(16,185,129,.10)}
+    .btn.bad{border-color:rgba(245,158,11,.9);background:rgba(245,158,11,.10)}
+
+    .hint{margin-top:10px;color:var(--muted);font-size:.92rem}
+
+    .popover{margin-top:10px;border:1px solid rgba(139,92,246,.45);border-radius:12px;background:rgba(139,92,246,.10);padding:10px;display:none}
+    .popover.show{display:block}
+    .popover a{color:var(--cyan);text-decoration:none;border-bottom:1px dashed rgba(0,242,255,.4)}
+
+    .score{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .score .pill b{color:var(--cyan)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+    input{background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px}
+    .primary{background:linear-gradient(135deg,var(--cyan),var(--blue));border-color:transparent;color:#001018;font-weight:800}
+    .primary:hover{background:linear-gradient(135deg,var(--cyan),var(--purple))}
+
+    .hof{margin-top:12px}
+    .hof ol{margin-left:18px;color:var(--text)}
+    .hof li{margin:6px 0;color:var(--muted)}
+    .hof li b{color:var(--text)}
+
+    .footer{margin:18px 0 34px;color:var(--muted);font-size:.9rem}
+    .footer code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text)}
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="wrap">
+    <section class="gate" aria-label="Institute Gate">
+      <div class="gate-head">
+        <div class="brand">
+          <div class="drop" title="Terra primary drop">◉</div>
+          <div>
+            <div class="title">Terra Institute — Entry is Action</div>
+            <div class="subtitle">Guess the language && the cultural anchor. Earn points. Unlock access by curiosity.</div>
+          </div>
+        </div>
+        <div class="status" title="Local demo only">
+          <span class="dot" id="dot"></span>
+          <b id="state">LOCKED</b>
+          <span class="pill" id="level">Level: 1 (Flags)</span>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="label">Live Anchor (rotates)</div>
+          <div class="stage">
+            <span class="pill" id="round">Round: 1</span>
+            <span class="pill" id="timer">Timer: 60s</span>
+          </div>
+
+          <div class="anchor" id="anchor">
+            <div class="anchor-glyph" id="glyph">🏳️</div>
+            <div class="anchor-meta">
+              <div id="script" style="font-weight:800">…</div>
+              <small id="prompt">Choose the language first.</small>
+            </div>
+          </div>
+
+          <div class="hint" id="stepHint">Step 1: What language is this?</div>
+          <div class="opts" id="opts"></div>
+
+          <div class="popover" id="popover">
+            <div style="font-weight:800;margin-bottom:4px">Thesaurus hint</div>
+            <div id="popText"></div>
+            <div style="margin-top:8px"><a id="readMore" href="#" target="_blank" rel="noopener">Read more in TerraPedia</a></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="label">Tokenomics + Hall of Fame (local)</div>
+          <div class="score">
+            <span class="pill">TP: <b id="tp">0</b></span>
+            <span class="pill">Streak: <b id="streak">0</b></span>
+            <span class="pill">Unlocked: <b id="unlocked">NO</b></span>
+          </div>
+
+          <div class="row">
+            <input id="name" placeholder="Your name (for Hall of Fame)" maxlength="28" />
+            <button class="btn primary" id="save">Save score</button>
+            <button class="btn" id="share">Share status</button>
+            <button class="btn" id="reset">Reset</button>
+          </div>
+
+          <div class="hof">
+            <div class="label" style="margin-top:12px">Hall of Fame (Top 10)</div>
+            <ol id="hof"></ol>
+          </div>
+
+          <div class="footer">
+            This is a <code>standalone demo</code> showing the intended behavior.
+            Next step: connect anchors to TerraPedia pages && add Council of Memory rotation.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer" style="margin-top:16px">
+      Notes: Languages here are examples. Anchors && descriptions are placeholders to demonstrate the mechanics (quiz, rotation, points, hall of fame).
+    </div>
+  </div>
+
+  <script>
+    // Terra Institute Gate — Immersive Quiz (standalone demo)
+    // Goals:
+    // 1) First contact = curiosity action, not reading.
+    // 2) Language appears as symbols/scripts (not EN/RU/UZ codes).
+    // 3) Quiz: (a) guess language, (b) guess anchor meaning, (c) show thesaurus hint + TerraPedia link.
+    // 4) Points + streak + hall of fame + share.
+
+    const KEY = 'terra_gate_demo_v1';
+
+    // Level progression: 1=flags, 2=emblems, 3=symbols
+    const LEVELS = [
+      { id: 1, name: 'Flags' },
+      { id: 2, name: 'Emblems' },
+      { id: 3, name: 'Symbols' },
+    ];
+
+    // Minimal dataset (placeholders for mechanics)
+    const LANGS = [
+      {
+        code: 'uz',
+        label: 'Uzbek',
+        script: 'Oʻzbek / Ўзбек',
+        anchors: [
+          { level:1, glyph:'🇺🇿', name:'Flag', about:'Uzbekistan (state symbol).', page:'#terrapedia/uzbekistan' },
+          { level:2, glyph:'🛡️', name:'Coat / emblem', about:'Heraldic identity markers (placeholder).', page:'#terrapedia/uzbekistan-emblem' },
+          { level:3, glyph:'🧿', name:'Tubeteika', about:'Traditional skullcap motif. Learn regional patterns.', page:'#terrapedia/tubeteika' },
+          { level:3, glyph:'🌾', name:'Cotton', about:'Cotton as history/economy/ecology trigger.', page:'#terrapedia/cotton' },
+          { level:3, glyph:'🍚', name:'Plov', about:'Cuisine as social protocol && memory.', page:'#terrapedia/plov' },
+        ]
+      },
+      {
+        code: 'kz',
+        label: 'Kazakh',
+        script: 'Qazaq / Қазақ',
+        anchors: [
+          { level:1, glyph:'🇰🇿', name:'Flag', about:'Kazakhstan (state symbol).', page:'#terrapedia/kazakhstan' },
+          { level:2, glyph:'🏰', name:'Emblem', about:'National emblem (placeholder).', page:'#terrapedia/kz-emblem' },
+          { level:3, glyph:'🎶', name:'Dombra', about:'Music as cognitive entry into culture.', page:'#terrapedia/dombra' },
+          { level:3, glyph:'🐎', name:'Steppe horse', about:'Mobility + steppe ecology + history.', page:'#terrapedia/steppe-horse' },
+        ]
+      },
+      {
+        code: 'tg',
+        label: 'Tajik',
+        script: 'Тоҷикӣ / Tojiki',
+        anchors: [
+          { level:1, glyph:'🇹🇯', name:'Flag', about:'Tajikistan (state symbol).', page:'#terrapedia/tajikistan' },
+          { level:2, glyph:'👑', name:'Emblem', about:'Heraldic identity markers (placeholder).', page:'#terrapedia/tj-emblem' },
+          { level:3, glyph:'📜', name:'Poetry', about:'Poetry as public memory: poets, epics, schools.', page:'#terrapedia/poetry' },
+          { level:3, glyph:'⛰️', name:'Pamir', about:'Geography as destiny: Pamir region.', page:'#terrapedia/pamir' },
+        ]
+      },
+      {
+        code: 'ug',
+        label: 'Uyghur',
+        script: 'ئۇيغۇرچە',
+        anchors: [
+          { level:1, glyph:'🏳️', name:'Flag', about:'Flag placeholder for demo.', page:'#terrapedia/uyghur' },
+          { level:2, glyph:'🩷', name:'Arabic textile', about:'Arabic script + textile motif (placeholder).', page:'#terrapedia/arabic-textile' },
+          { level:3, glyph:'🎵', name:'Muqam', about:'Music tradition as living archive.', page:'#terrapedia/muqam' },
+          { level:3, glyph:'🍜', name:'Laghman', about:'Cuisine as identity marker.', page:'#terrapedia/laghman' },
+        ]
+      },
+      {
+        code: 'fa',
+        label: 'Persian',
+        script: 'فارسی',
+        anchors: [
+          { level:1, glyph:'🏳️', name:'Flag', about:'Flag placeholder for demo.', page:'#terrapedia/iran' },
+          { level:2, glyph:'🩷', name:'Arabic textile', about:'Arabic script texture (placeholder).', page:'#terrapedia/persian-script' },
+          { level:3, glyph:'🌹', name:'Rose', about:'Poetry/garden symbolism (placeholder).', page:'#terrapedia/rose' },
+          { level:3, glyph:'📜', name:'Hafez', about:'Poet as memory node.', page:'#terrapedia/hafez' },
+        ]
+      },
+      {
+        code: 'hi',
+        label: 'Hindi',
+        script: 'हिन्दी',
+        anchors: [
+          { level:1, glyph:'🇮🇳', name:'Flag', about:'India (state symbol).', page:'#terrapedia/india' },
+          { level:2, glyph:'अ', name:'Devanagari mark', about:'Devanagari script entry (placeholder).', page:'#terrapedia/devanagari' },
+          { level:3, glyph:'🪔', name:'Diya', about:'Festival/civil calendar entry point.', page:'#terrapedia/diya' },
+          { level:3, glyph:'🎶', name:'Raga', about:'Music as semantic passport.', page:'#terrapedia/raga' },
+        ]
+      },
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const dot = $('dot');
+    const stateEl = $('state');
+    const levelEl = $('level');
+    const roundEl = $('round');
+    const timerEl = $('timer');
+    const glyphEl = $('glyph');
+    const scriptEl = $('script');
+    const promptEl = $('prompt');
+    const stepHint = $('stepHint');
+    const optsEl = $('opts');
+    const pop = $('popover');
+    const popText = $('popText');
+    const readMore = $('readMore');
+    const tpEl = $('tp');
+    const streakEl = $('streak');
+    const unlockedEl = $('unlocked');
+    const nameEl = $('name');
+    const hofEl = $('hof');
+
+    let st = {
+      tp: 0,
+      streak: 0,
+      unlocked: false,
+      round: 1,
+      level: 1,
+      phase: 'lang', // 'lang' or 'anchor'
+      targetLang: null,
+      targetAnchor: null,
+      seconds: 60,
+      hof: [],
+    };
+
+    
+
+<script>
+window.LANGS_DATA = [{"code": "uz", "label": "Uzbek", "script": "Oʻzbek / Ўзбек", "anchors": [{"level": 1, "glyph": "🇺🇿", "name": "Flag", "about": "Uzbekistan (state symbol).", "page": "#terrapedia/uzbekistan"}, {"level": 2, "glyph": "🛡️", "name": "Coat / emblem", "about": "Heraldic identity markers (placeholder).", "page": "#terrapedia/uzbekistan-emblem"}, {"level": 3, "glyph": "🧿", "name": "Tubeteika", "about": "Traditional skullcap motif. Learn regional patterns.", "page": "#terrapedia/tubeteika"}, {"level": 3, "glyph": "🌾", "name": "Cotton", "about": "Cotton as history/economy/ecology trigger.", "page": "#terrapedia/cotton"}, {"level": 3, "glyph": "🍚", "name": "Plov", "about": "Cuisine as social protocol && memory.", "page": "#terrapedia/plov"}]}, {"code": "kz", "label": "Kazakh", "script": "Qazaq / Қазақ", "anchors": [{"level": 1, "glyph": "🇰🇿", "name": "Flag", "about": "Kazakhstan (state symbol).", "page": "#terrapedia/kazakhstan"}, {"level": 2, "glyph": "🏰", "name": "Emblem", "about": "National emblem (placeholder).", "page": "#terrapedia/kz-emblem"}, {"level": 3, "glyph": "🎶", "name": "Dombra", "about": "Music as cognitive entry into culture.", "page": "#terrapedia/dombra"}, {"level": 3, "glyph": "🐎", "name": "Steppe horse", "about": "Mobility + steppe ecology + history.", "page": "#terrapedia/steppe-horse"}]}, {"code": "tg", "label": "Tajik", "script": "Тоҷикӣ / Tojiki", "anchors": [{"level": 1, "glyph": "🇹🇯", "name": "Flag", "about": "Tajikistan (state symbol).", "page": "#terrapedia/tajikistan"}, {"level": 2, "glyph": "👑", "name": "Emblem", "about": "Heraldic identity markers (placeholder).", "page": "#terrapedia/tj-emblem"}, {"level": 3, "glyph": "📜", "name": "Poetry", "about": "Poetry as public memory: poets, epics, schools.", "page": "#terrapedia/poetry"}, {"level": 3, "glyph": "⛰️", "name": "Pamir", "about": "Geography as destiny: Pamir region.", "page": "#terrapedia/pamir"}]}, {"code": "ug", "label": "Uyghur", "script": "ئۇيغۇرچە", "anchors": [{"level": 1, "glyph": "🏳️", "name": "Flag", "about": "Flag placeholder for demo.", "page": "#terrapedia/uyghur"}, {"level": 2, "glyph": "🩷", "name": "Arabic textile", "about": "Arabic script + textile motif (placeholder).", "page": "#terrapedia/arabic-textile"}, {"level": 3, "glyph": "🎵", "name": "Muqam", "about": "Music tradition as living archive.", "page": "#terrapedia/muqam"}, {"level": 3, "glyph": "🍜", "name": "Laghman", "about": "Cuisine as identity marker.", "page": "#terrapedia/laghman"}]}, {"code": "fa", "label": "Persian", "script": "فارسی", "anchors": [{"level": 1, "glyph": "🏳️", "name": "Flag", "about": "Flag placeholder for demo.", "page": "#terrapedia/iran"}, {"level": 2, "glyph": "🩷", "name": "Arabic textile", "about": "Arabic script texture (placeholder).", "page": "#terrapedia/persian-script"}, {"level": 3, "glyph": "🌹", "name": "Rose", "about": "Poetry/garden symbolism (placeholder).", "page": "#terrapedia/rose"}, {"level": 3, "glyph": "📜", "name": "Hafez", "about": "Poet as memory node.", "page": "#terrapedia/hafez"}]}, {"code": "hi", "label": "Hindi", "script": "हिन्दी", "anchors": [{"level": 1, "glyph": "🇮🇳", "name": "Flag", "about": "India (state symbol).", "page": "#terrapedia/india"}, {"level": 2, "glyph": "अ", "name": "Devanagari mark", "about": "Devanagari script entry (placeholder).", "page": "#terrapedia/devanagari"}, {"level": 3, "glyph": "🪔", "name": "Diya", "about": "Festival/civil calendar entry point.", "page": "#terrapedia/diya"}, {"level": 3, "glyph": "🎶", "name": "Raga", "about": "Music as semantic passport.", "page": "#terrapedia/raga"}]}];
+</script>
+
+  <script>
+    const KEY = 'terra_gate_demo_v1';
+
+    const LEVELS = [
+      { id: 1, name: 'Flags' },
+      { id: 2, name: 'Emblems' },
+      { id: 3, name: 'Symbols' },
+    ];
+
+    const LANGS = window.LANGS_DATA;
+
+    const $ = (id) => document.getElementById(id);
+    const dot = $('dot');
+    const stateEl = $('state');
+    const levelEl = $('level');
+    const roundEl = $('round');
+    const timerEl = $('timer');
+    const glyphEl = $('glyph');
+    const scriptEl = $('script');
+    const promptEl = $('prompt');
+    const stepHint = $('stepHint');
+    const optsEl = $('opts');
+    const pop = $('popover');
+    const popText = $('popText');
+    const readMore = $('readMore');
+    const tpEl = $('tp');
+    const streakEl = $('streak');
+    const unlockedEl = $('unlocked');
+    const nameEl = $('name');
+    const hofEl = $('hof');
+
+    let st = {
+      tp: 0,
+      streak: 0,
+      unlocked: false,
+      round: 1,
+      level: 1,
+      phase: 'lang',
+      targetLang: null,
+      targetAnchor: null,
+      seconds: 60,
+      timer: null,
+      hof: [],
+    };
+
+    function save(){
+      localStorage.setItem(KEY, JSON.stringify({
+        tp: st.tp,
+        streak: st.streak,
+        unlocked: st.unlocked,
+        round: st.round,
+        level: st.level,
+        hof: st.hof,
+      }));
+    }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(KEY);
+        if(!raw) return;
+        const d = JSON.parse(raw);
+        if(typeof d !== 'object' || !d) return;
+        st.tp = Number(d.tp || 0);
+        st.streak = Number(d.streak || 0);
+        st.unlocked = Boolean(d.unlocked || false);
+        st.round = Number(d.round || 1);
+        st.level = Number(d.level || 1);
+        st.hof = Array.isArray(d.hof) ? d.hof : [];
+      } catch(e) {}
+    }
+
+    function pick(arr){
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function sample(arr, n){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a.slice(0, n);
+    }
+
+    function levelName(){
+      const L = LEVELS.find(x => x.id === st.level) || LEVELS[0];
+      return `${L.id} (${L.name})`;
+    }
+
+    function updateHUD(){
+      tpEl.textContent = String(st.tp);
+      streakEl.textContent = String(st.streak);
+      unlockedEl.textContent = st.unlocked ? 'YES' : 'NO';
+      roundEl.textContent = `Round: ${st.round}`;
+      levelEl.textContent = `Level: ${levelName()}`;
+      stateEl.textContent = st.unlocked ? 'ACTIVE' : 'LOCKED';
+      dot.classList.toggle('on', st.unlocked);
+      renderHOF();
+    }
+
+    function renderHOF(){
+      const top = (st.hof || []).slice().sort((a,b)=> (b.tp||0)-(a.tp||0)).slice(0,10);
+      hofEl.innerHTML = top.map((x,i)=>{
+        const n = (x.name || 'Anonymous').replace(/[<>]/g,'');
+        return `<li><b>${i+1}. ${n}</b> — ${x.tp||0} TP</li>`;
+      }).join('') || '<li><b>No entries yet.</b> Be the first.</li>';
+    }
+
+    function startTimer(){
+      stopTimer();
+      st.seconds = 60;
+      timerEl.textContent = `Timer: ${st.seconds}s`;
+      st.timer = setInterval(()=>{
+        st.seconds -= 1;
+        timerEl.textContent = `Timer: ${st.seconds}s`;
+        if(st.seconds <= 0){
+          stopTimer();
+          failRound('Time is up. Curiosity resets the gate.');
+        }
+      }, 1000);
+    }
+
+    function stopTimer(){
+      if(st.timer){
+        clearInterval(st.timer);
+        st.timer = null;
+      }
+    }
+
+    function currentAnchorPool(lang){
+      return (lang.anchors || []).filter(a => a.level <= st.level);
+    }
+
+    function newRound(){
+      pop.classList.remove('show');
+      popText.textContent = '';
+      readMore.href = '#';
+
+      st.phase = 'lang';
+      st.targetLang = pick(LANGS);
+      const pool = currentAnchorPool(st.targetLang);
+      st.targetAnchor = pick(pool);
+
+      glyphEl.textContent = st.targetAnchor.glyph;
+      scriptEl.textContent = st.targetLang.script;
+      promptEl.textContent = 'Step 1: identify the language (by script/symbols).';
+      stepHint.textContent = 'Step 1: What language is this?';
+
+      const others = LANGS.filter(x => x.code !== st.targetLang.code);
+      const opts = sample(others, 3).concat([st.targetLang]);
+      // shuffle
+      for(let i=opts.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [opts[i],opts[j]]=[opts[j],opts[i]];
+      }
+
+      optsEl.innerHTML = '';
+      opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'btn';
+        b.innerHTML = `<div style="font-weight:800">${o.label}</div><div style="color:var(--muted);font-size:.86rem">${o.code.toUpperCase()}</div>`;
+        b.addEventListener('click', ()=> onPickLanguage(o, b));
+        optsEl.appendChild(b);
+      });
+
+      startTimer();
+      updateHUD();
+    }
+
+    function onPickLanguage(chosen, btn){
+      if(st.phase !== 'lang') return;
+      const ok = chosen.code === st.targetLang.code;
+      markButtonsForAnswer(chosen.code, st.targetLang.code);
+
+      if(!ok){
+        st.streak = 0;
+        st.tp = Math.max(0, st.tp - 2);
+        failRound('Not this language. Gate stays closed. Try again.');
+        return;
+      }
+
+      // pass step 1
+      btn.classList.add('good');
+      st.phase = 'anchor';
+      st.tp += 5;
+      st.streak += 1;
+
+      promptEl.textContent = 'Step 2: what does this anchor mean here?';
+      stepHint.textContent = 'Step 2: What does this symbol anchor mean (in this cultural mode)?';
+
+      const pool = currentAnchorPool(st.targetLang);
+      const others = pool.filter(a => a.name != st.targetAnchor.name);
+      const opts = sample(others, 2).concat([st.targetAnchor]);
+      for(let i=opts.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [opts[i],opts[j]]=[opts[j],opts[i]];
+      }
+
+      optsEl.innerHTML = '';
+      opts.forEach(a => {
+        const b = document.createElement('button');
+        b.className = 'btn';
+        b.innerHTML = `<div style="font-weight:800">${a.glyph} ${a.name}</div><div style="color:var(--muted);font-size:.86rem">Choose meaning</div>`;
+        b.addEventListener('click', ()=> onPickAnchor(a, b));
+        optsEl.appendChild(b);
+      });
+
+      updateHUD();
+    }
+
+    function onPickAnchor(chosen, btn){
+      if(st.phase !== 'anchor') return;
+      const ok = chosen.name === st.targetAnchor.name;
+
+      // mark
+      Array.from(optsEl.querySelectorAll('button')).forEach(b=>b.classList.remove('good','bad'));
+      Array.from(optsEl.querySelectorAll('button')).forEach(b=>{
+        if(b.textContent.includes(st.targetAnchor.name)) b.classList.add('good');
+      });
+
+      if(!ok){
+        st.streak = 0;
+        st.tp = Math.max(0, st.tp - 1);
+        failRound('Meaning mismatch. Gate remains closed.');
+        return;
+      }
+
+      btn.classList.add('good');
+      st.tp += 5;
+      st.streak += 1;
+
+      pop.classList.add('show');
+      popText.textContent = st.targetAnchor.about;
+      readMore.href = st.targetAnchor.page || '#';
+
+      // unlock conditions: 3 successful rounds in a row
+      if(st.streak >= 3){
+        st.unlocked = true;
+      }
+
+      // level up every 6 rounds
+      if(st.round % 6 === 0 && st.level < 3){
+        st.level += 1;
+      }
+
+      stopTimer();
+      st.round += 1;
+      save();
+      updateHUD();
+
+      // next round delay
+      setTimeout(()=> newRound(), 1100);
+    }
+
+    function markButtonsForAnswer(chosenCode, correctCode){
+      Array.from(optsEl.querySelectorAll('button')).forEach(b=>{
+        b.classList.remove('good','bad');
+        const isCorrect = b.textContent.toLowerCase().includes(correctCode);
+        const isChosen = b.textContent.toLowerCase().includes(chosenCode);
+        if(isCorrect) b.classList.add('good');
+        if(isChosen && !isCorrect) b.classList.add('bad');
+      });
+    }
+
+    function failRound(msg){
+      stopTimer();
+      pop.classList.add('show');
+      popText.textContent = msg;
+      readMore.href = '#';
+      save();
+      updateHUD();
+      setTimeout(()=> newRound(), 1200);
+    }
+
+    function hardReset(){
+      stopTimer();
+      st.tp = 0;
+      st.streak = 0;
+      st.unlocked = false;
+      st.round = 1;
+      st.level = 1;
+      save();
+      updateHUD();
+      newRound();
+    }
+
+    function saveScore(){
+      const name = (nameEl.value || '').trim() || 'Anonymous';
+      st.hof = Array.isArray(st.hof) ? st.hof : [];
+      st.hof.push({ name, tp: st.tp, t: Date.now() })
+      // keep last 50
+      if(st.hof.length > 50) st.hof = st.hof.slice(-50);
+      save();
+      updateHUD();
+    }
+
+    async function shareStatus(){
+      const text = `Terra Institute: ${st.unlocked ? 'ACTIVE' : 'LOCKED'} | ${st.tp} TP | streak ${st.streak} | level ${st.level}`;
+      try{
+        if(navigator.share){
+          await navigator.share({ title: 'Terra Institute Status', text });
+          return;
+        }
+      } catch(e) {}
+      try{
+        await navigator.clipboard.writeText(text);
+        pop.classList.add('show');
+        popText.textContent = 'Status copied to clipboard.';
+      } catch(e) {
+        pop.classList.add('show');
+        popText.textContent = text;
+      }
+    }
+
+    // bind buttons
+    document.getElementById('save').addEventListener('click', saveScore);
+    document.getElementById('share').addEventListener('click', shareStatus);
+    document.getElementById('reset').addEventListener('click', hardReset);
+
+    // expose dataset
+  </script>
+
+</body>
+</html>
