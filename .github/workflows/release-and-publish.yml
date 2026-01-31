@@ -1,0 +1,53 @@
+name: release-and-publish
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      - "v*.*"
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release bundle
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          zip -r "release/ust-mvp-${GITHUB_REF_NAME}.zip" . -x "*.git/*" -x "release/*"
+          sha256sum "release/ust-mvp-${GITHUB_REF_NAME}.zip" | tee "release/CHECKSUMS.txt"
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/ust-mvp-${{ github.ref_name }}.zip
+            release/CHECKSUMS.txt
+
+      - name: Publish to Zenodo (optional)
+        if: ${{ secrets.ZENODO_TOKEN != '' }}
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          bash scripts/publish/zenodo.sh "release/ust-mvp-${GITHUB_REF_NAME}.zip" "${GITHUB_REF_NAME}"
+
+      - name: Publish to Figshare (optional)
+        if: ${{ secrets.FIGSHARE_TOKEN != '' }}
+        env:
+          FIGSHARE_TOKEN: ${{ secrets.FIGSHARE_TOKEN }}
+        run: |
+          bash scripts/publish/figshare.sh "release/ust-mvp-${GITHUB_REF_NAME}.zip" "${GITHUB_REF_NAME}"
+
+      - name: Cloudflare purge (optional)
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ZONE_ID != '' }}
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CF_URLS_JSON: ${{ secrets.CLOUDFLARE_PURGE_URLS_JSON }}
+        run: |
+          bash scripts/publish/cloudflare_purge.sh
