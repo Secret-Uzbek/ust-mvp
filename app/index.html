@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UST - Universal Semantic Translator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-8">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold mb-2">UST</h1>
+            <p class="text-xl">Universal Semantic Translator</p>
+            <p class="text-sm mt-2 opacity-80">Meaning-first translation for Uzbek, Russian, English</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Translation Card -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <!-- Source Language -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">From</label>
+                    <select id="sourceLang" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="uz">Uzbek (O'zbek)</option>
+                        <option value="ru">Russian (Русский)</option>
+                        <option value="en" selected>English</option>
+                        <option value="de">German (Deutsch)</option>
+                    </select>
+                </div>
+
+                <!-- Swap Button -->
+                <div class="flex items-end justify-center">
+                    <button id="swapBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors">
+                        ⇄ Swap
+                    </button>
+                </div>
+
+                <!-- Target Language -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">To</label>
+                    <select id="targetLang" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="uz" selected>Uzbek (O'zbek)</option>
+                        <option value="ru">Russian (Русский)</option>
+                        <option value="en">English</option>
+                        <option value="de">German (Deutsch)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Text Areas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Source Text -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Original Text</label>
+                    <textarea 
+                        id="sourceText" 
+                        placeholder="Enter text to translate..."
+                        class="w-full h-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                    ></textarea>
+                    <div class="text-sm text-gray-500 mt-1">
+                        <span id="charCount">0</span> / 5000 characters
+                    </div>
+                </div>
+
+                <!-- Translated Text -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Translation</label>
+                    <textarea 
+                        id="targetText" 
+                        placeholder="Translation will appear here..."
+                        class="w-full h-64 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 resize-none"
+                        readonly
+                    ></textarea>
+                    <div class="text-sm text-gray-500 mt-1">
+                        <span id="status">Ready</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Translate Button -->
+            <div class="mt-6 text-center">
+                <button 
+                    id="translateBtn"
+                    class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Translate
+                </button>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMsg" class="mt-4 p-4 bg-red-50 text-red-700 rounded-md hidden"></div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h2 class="text-lg font-semibold text-blue-900 mb-2">🎯 About UST</h2>
+            <p class="text-blue-800 mb-2">
+                Universal Semantic Translator uses advanced AI (NLLB-200) to provide meaning-first translations 
+                between Uzbek, Russian, English, and German.
+            </p>
+            <p class="text-blue-800">
+                <strong>Free Tier:</strong> 100 translations per day, up to 5000 characters each.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-gray-600 text-sm">
+            <p>
+                Created by <a href="https://orcid.org/0009-0000-6394-4912" class="text-indigo-600 hover:underline" target="_blank">Abdurashid Abdukarimov</a>
+            </p>
+            <p class="mt-1">
+                Part of the <a href="https://fractal-metascience.org" class="text-indigo-600 hover:underline" target="_blank">Fractal Metascience Paradigm</a>
+            </p>
+            <p class="mt-1">License: CC BY 4.0</p>
+        </footer>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        // Configuration
+        const API_URL = 'https://ust-api.YOUR-WORKER.workers.dev'; // Replace with your Cloudflare Worker URL
+
+        // DOM Elements
+        const sourceLang = document.getElementById('sourceLang');
+        const targetLang = document.getElementById('targetLang');
+        const sourceText = document.getElementById('sourceText');
+        const targetText = document.getElementById('targetText');
+        const translateBtn = document.getElementById('translateBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const charCount = document.getElementById('charCount');
+        const status = document.getElementById('status');
+        const errorMsg = document.getElementById('errorMsg');
+
+        // Character counter
+        sourceText.addEventListener('input', () => {
+            const count = sourceText.value.length;
+            charCount.textContent = count;
+            
+            if (count > 5000) {
+                charCount.classList.add('text-red-500');
+                translateBtn.disabled = true;
+            } else {
+                charCount.classList.remove('text-red-500');
+                translateBtn.disabled = false;
+            }
+        });
+
+        // Swap languages
+        swapBtn.addEventListener('click', () => {
+            const tempLang = sourceLang.value;
+            sourceLang.value = targetLang.value;
+            targetLang.value = tempLang;
+            
+            const tempText = sourceText.value;
+            sourceText.value = targetText.value;
+            targetText.value = tempText;
+        });
+
+        // Translate function
+        translateBtn.addEventListener('click', async () => {
+            const text = sourceText.value.trim();
+            
+            if (!text) {
+                showError('Please enter text to translate');
+                return;
+            }
+
+            if (sourceLang.value === targetLang.value) {
+                showError('Source and target languages must be different');
+                return;
+            }
+
+            // Disable button and show loading
+            translateBtn.disabled = true;
+            translateBtn.textContent = 'Translating...';
+            status.textContent = 'Translating...';
+            errorMsg.classList.add('hidden');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        source_lang: sourceLang.value,
+                        target_lang: targetLang.value,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Translation failed');
+                }
+
+                // Display translation
+                targetText.value = data.translation;
+                status.textContent = `Translated (${data.metadata.character_count} chars)`;
+
+            } catch (error) {
+                showError(error.message);
+                status.textContent = 'Error';
+            } finally {
+                translateBtn.disabled = false;
+                translateBtn.textContent = 'Translate';
+            }
+        });
+
+        // Error display
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.classList.remove('hidden');
+        }
+
+        // Enter key to translate
+        sourceText.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                translateBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
