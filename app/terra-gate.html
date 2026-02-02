@@ -166,86 +166,52 @@
   </div>
 
   <script>
-    // Terra Institute Gate — Immersive Quiz (standalone demo)
-
     const KEY = 'terra_gate_demo_v1';
 
-    // Level progression: 1=flags, 2=emblems, 3=symbols
     const LEVELS = [
       { id: 1, name: 'Flags' },
       { id: 2, name: 'Emblems' },
       { id: 3, name: 'Symbols' },
     ];
 
-    // Minimal dataset (placeholders for mechanics)
     const LANGS = [
-      {
-        code: 'uz',
-        label: 'Uzbek',
-        script: 'Oʻzbek / Ўзбек',
-        anchors: [
-          { level:1, glyph:'🇺🇿', name:'Flag', about:'Uzbekistan (state symbol).', page:'#terrapedia/uzbekistan' },
-          { level:2, glyph:'🛡️', name:'Coat / emblem', about:'Heraldic identity markers (placeholder).', page:'#terrapedia/uzbekistan-emblem' },
-          { level:3, glyph:'🧿', name:'Tubeteika', about:'Traditional skullcap motif. Learn regional patterns.', page:'#terrapedia/tubeteika' },
-          { level:3, glyph:'🌾', name:'Cotton', about:'Cotton as history/economy/ecology trigger.', page:'#terrapedia/cotton' },
-          { level:3, glyph:'🍚', name:'Plov', about:'Cuisine as social protocol && memory.', page:'#terrapedia/plov' },
-        ]
-      },
-      {
-        code: 'kz',
-        label: 'Kazakh',
-        script: 'Qazaq / Қазақ',
-        anchors: [
-          { level:1, glyph:'🇰🇿', name:'Flag', about:'Kazakhstan (state symbol).', page:'#terrapedia/kazakhstan' },
-          { level:2, glyph:'🏰', name:'Emblem', about:'National emblem (placeholder).', page:'#terrapedia/kz-emblem' },
-          { level:3, glyph:'🎶', name:'Dombra', about:'Music as cognitive entry into culture.', page:'#terrapedia/dombra' },
-          { level:3, glyph:'🐎', name:'Steppe horse', about:'Mobility + steppe ecology + history.', page:'#terrapedia/steppe-horse' },
-        ]
-      },
-      {
-        code: 'tg',
-        label: 'Tajik',
-        script: 'Тоҷикӣ / Tojiki',
-        anchors: [
-          { level:1, glyph:'🇹🇯', name:'Flag', about:'Tajikistan (state symbol).', page:'#terrapedia/tajikistan' },
-          { level:2, glyph:'👑', name:'Emblem', about:'Heraldic identity markers (placeholder).', page:'#terrapedia/tj-emblem' },
-          { level:3, glyph:'📜', name:'Poetry', about:'Poetry as public memory: poets, epics, schools.', page:'#terrapedia/poetry' },
-          { level:3, glyph:'⛰️', name:'Pamir', about:'Geography as destiny: Pamir region.', page:'#terrapedia/pamir' },
-        ]
-      },
-      {
-        code: 'ug',
-        label: 'Uyghur',
-        script: 'ئۇيغۇرچە',
-        anchors: [
-          { level:1, glyph:'🏳️', name:'Flag', about:'Flag placeholder for demo.', page:'#terrapedia/uyghur' },
-          { level:2, glyph:'🩷', name:'Arabic textile', about:'Arabic script + textile motif (placeholder).', page:'#terrapedia/arabic-textile' },
-          { level:3, glyph:'🎵', name:'Muqam', about:'Music tradition as living archive.', page:'#terrapedia/muqam' },
-          { level:3, glyph:'🍜', name:'Laghman', about:'Cuisine as identity marker.', page:'#terrapedia/laghman' },
-        ]
-      },
-      {
-        code: 'fa',
-        label: 'Persian',
-        script: 'فارسی',
-        anchors: [
-          { level:1, glyph:'🏳️', name:'Flag', about:'Flag placeholder for demo.', page:'#terrapedia/iran' },
-          { level:2, glyph:'🩷', name:'Arabic textile', about:'Arabic script texture (placeholder).', page:'#terrapedia/persian-script' },
-          { level:3, glyph:'🌹', name:'Rose', about:'Poetry/garden symbolism (placeholder).', page:'#terrapedia/rose' },
-          { level:3, glyph:'📜', name:'Hafez', about:'Poet as memory node.', page:'#terrapedia/hafez' },
-        ]
-      },
-      {
-        code: 'hi',
-        label: 'Hindi',
-        script: 'हिन्दी',
-        anchors: [
-          { level:1, glyph:'🇮🇳', name:'Flag', about:'India (state symbol).', page:'#terrapedia/india' },
-          { level:2, glyph:'अ', name:'Devanagari mark', about:'Devanagari script entry (placeholder).', page:'#terrapedia/devanagari' },
-          { level:3, glyph:'🪔', name:'Diya', about:'Festival/civil calendar entry point.', page:'#terrapedia/diya' },
-          { level:3, glyph:'🎶', name:'Raga', about:'Music as semantic passport.', page:'#terrapedia/raga' },
-        ]
-      },
+      { code:'uz', label:'Uzbek',  script:'Oʻzbek / Ўзбек', anchors:[
+        { level:1, glyph:'🇺🇿', name:'Flag', about:'Uzbekistan (state symbol).', page:'#terrapedia/uzbekistan' },
+        { level:2, glyph:'🛡️', name:'Coat / emblem', about:'Heraldic identity markers (placeholder).', page:'#terrapedia/uzbekistan-emblem' },
+        { level:3, glyph:'🧿', name:'Tubeteika', about:'Traditional skullcap motif. Learn regional patterns.', page:'#terrapedia/tubeteika' },
+        { level:3, glyph:'🌾', name:'Cotton', about:'Cotton as history/economy/ecology trigger.', page:'#terrapedia/cotton' },
+        { level:3, glyph:'🍚', name:'Plov', about:'Cuisine as social protocol && memory.', page:'#terrapedia/plov' },
+      ]},
+      { code:'kz', label:'Kazakh', script:'Qazaq / Қазақ', anchors:[
+        { level:1, glyph:'🇰🇿', name:'Flag', about:'Kazakhstan (state symbol).', page:'#terrapedia/kazakhstan' },
+        { level:2, glyph:'🏰', name:'Emblem', about:'National emblem (placeholder).', page:'#terrapedia/kz-emblem' },
+        { level:3, glyph:'🎶', name:'Dombra', about:'Music as cognitive entry into culture.', page:'#terrapedia/dombra' },
+        { level:3, glyph:'🐎', name:'Steppe horse', about:'Mobility + steppe ecology + history.', page:'#terrapedia/steppe-horse' },
+      ]},
+      { code:'tg', label:'Tajik',  script:'Тоҷикӣ / Tojiki', anchors:[
+        { level:1, glyph:'🇹🇯', name:'Flag', about:'Tajikistan (state symbol).', page:'#terrapedia/tajikistan' },
+        { level:2, glyph:'👑', name:'Emblem', about:'Heraldic identity markers (placeholder).', page:'#terrapedia/tj-emblem' },
+        { level:3, glyph:'📜', name:'Poetry', about:'Poetry as public memory: poets, epics, schools.', page:'#terrapedia/poetry' },
+        { level:3, glyph:'⛰️', name:'Pamir', about:'Geography as destiny: Pamir region.', page:'#terrapedia/pamir' },
+      ]},
+      { code:'ug', label:'Uyghur', script:'ئۇيغۇرچە', anchors:[
+        { level:1, glyph:'🏳️', name:'Flag', about:'Flag placeholder for demo.', page:'#terrapedia/uyghur' },
+        { level:2, glyph:'🩷', name:'Arabic textile', about:'Arabic script + textile motif (placeholder).', page:'#terrapedia/arabic-textile' },
+        { level:3, glyph:'🎵', name:'Muqam', about:'Music tradition as living archive.', page:'#terrapedia/muqam' },
+        { level:3, glyph:'🍜', name:'Laghman', about:'Cuisine as identity marker.', page:'#terrapedia/laghman' },
+      ]},
+      { code:'fa', label:'Persian', script:'فارسی', anchors:[
+        { level:1, glyph:'🏳️', name:'Flag', about:'Flag placeholder for demo.', page:'#terrapedia/iran' },
+        { level:2, glyph:'🩷', name:'Arabic textile', about:'Arabic script texture (placeholder).', page:'#terrapedia/persian-script' },
+        { level:3, glyph:'🌹', name:'Rose', about:'Poetry/garden symbolism (placeholder).', page:'#terrapedia/rose' },
+        { level:3, glyph:'📜', name:'Hafez', about:'Poet as memory node.', page:'#terrapedia/hafez' },
+      ]},
+      { code:'hi', label:'Hindi', script:'हिन्दी', anchors:[
+        { level:1, glyph:'🇮🇳', name:'Flag', about:'India (state symbol).', page:'#terrapedia/india' },
+        { level:2, glyph:'अ', name:'Devanagari mark', about:'Devanagari script entry (placeholder).', page:'#terrapedia/devanagari' },
+        { level:3, glyph:'🪔', name:'Diya', about:'Festival/civil calendar entry point.', page:'#terrapedia/diya' },
+        { level:3, glyph:'🎶', name:'Raga', about:'Music as semantic passport.', page:'#terrapedia/raga' },
+      ]},
     ];
 
     const $ = (id) => document.getElementById(id);
@@ -284,12 +250,8 @@
 
     function save(){
       localStorage.setItem(KEY, JSON.stringify({
-        tp: st.tp,
-        streak: st.streak,
-        unlocked: st.unlocked,
-        round: st.round,
-        level: st.level,
-        hof: st.hof,
+        tp: st.tp, streak: st.streak, unlocked: st.unlocked,
+        round: st.round, level: st.level, hof: st.hof,
       }));
     }
 
@@ -308,9 +270,7 @@
       } catch(e) {}
     }
 
-    function pick(arr){
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
+    function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
 
     function sample(arr, n){
       const a = arr.slice();
@@ -326,6 +286,14 @@
       return `${L.id} (${L.name})`;
     }
 
+    function renderHOF(){
+      const top = (st.hof || []).slice().sort((a,b)=> (b.tp||0)-(a.tp||0)).slice(0,10);
+      hofEl.innerHTML = top.map((x,i)=>{
+        const n = (x.name || 'Anonymous').replace(/[<>]/g,'');
+        return `<li><b>${i+1}. ${n}</b> — ${x.tp||0} TP</li>`;
+      }).join('') || '<li><b>No entries yet.</b> Be the first.</li>';
+    }
+
     function updateHUD(){
       tpEl.textContent = String(st.tp);
       streakEl.textContent = String(st.streak);
@@ -337,12 +305,8 @@
       renderHOF();
     }
 
-    function renderHOF(){
-      const top = (st.hof || []).slice().sort((a,b)=> (b.tp||0)-(a.tp||0)).slice(0,10);
-      hofEl.innerHTML = top.map((x,i)=>{
-        const n = (x.name || 'Anonymous').replace(/[<>]/g,'');
-        return `<li><b>${i+1}. ${n}</b> — ${x.tp||0} TP</li>`;
-      }).join('') || '<li><b>No entries yet.</b> Be the first.</li>';
+    function stopTimer(){
+      if(st.timer){ clearInterval(st.timer); st.timer = null; }
     }
 
     function startTimer(){
@@ -357,13 +321,6 @@
           failRound('Time is up. Curiosity resets the gate.');
         }
       }, 1000);
-    }
-
-    function stopTimer(){
-      if(st.timer){
-        clearInterval(st.timer);
-        st.timer = null;
-      }
     }
 
     function currentAnchorPool(lang){
@@ -405,6 +362,17 @@
       updateHUD();
     }
 
+    function markButtonsForAnswer(chosenCode, correctCode){
+      Array.from(optsEl.querySelectorAll('button')).forEach(b=>{
+        b.classList.remove('good','bad');
+        const text = b.textContent.toLowerCase();
+        const isCorrect = text.includes(correctCode);
+        const isChosen = text.includes(chosenCode);
+        if(isCorrect) b.classList.add('good');
+        if(isChosen && !isCorrect) b.classList.add('bad');
+      });
+    }
+
     function onPickLanguage(chosen, btn){
       if(st.phase !== 'lang') return;
       const ok = chosen.code === st.targetLang.code;
@@ -426,7 +394,7 @@
       stepHint.textContent = 'Step 2: What does this symbol anchor mean (in this cultural mode)?';
 
       const pool = currentAnchorPool(st.targetLang);
-      const others = pool.filter(a => a.name != st.targetAnchor.name);
+      const others = pool.filter(a => a.name !== st.targetAnchor.name);
       const opts = sample(others, 2).concat([st.targetAnchor]);
       for(let i=opts.length-1;i>0;i--){
         const j=Math.floor(Math.random()*(i+1));
@@ -469,13 +437,8 @@
       popText.textContent = st.targetAnchor.about;
       readMore.href = st.targetAnchor.page || '#';
 
-      if(st.streak >= 3){
-        st.unlocked = true;
-      }
-
-      if(st.round % 6 === 0 && st.level < 3){
-        st.level += 1;
-      }
+      if(st.streak >= 3) st.unlocked = true;
+      if(st.round % 6 === 0 && st.level < 3) st.level += 1;
 
       stopTimer();
       st.round += 1;
@@ -483,17 +446,6 @@
       updateHUD();
 
       setTimeout(()=> newRound(), 1100);
-    }
-
-    function markButtonsForAnswer(chosenCode, correctCode){
-      Array.from(optsEl.querySelectorAll('button')).forEach(b=>{
-        b.classList.remove('good','bad');
-        const t = b.textContent.toLowerCase();
-        const isCorrect = t.includes(correctCode);
-        const isChosen = t.includes(chosenCode);
-        if(isCorrect) b.classList.add('good');
-        if(isChosen && !isCorrect) b.classList.add('bad');
-      });
     }
 
     function failRound(msg){
@@ -508,11 +460,7 @@
 
     function hardReset(){
       stopTimer();
-      st.tp = 0;
-      st.streak = 0;
-      st.unlocked = false;
-      st.round = 1;
-      st.level = 1;
+      st.tp = 0; st.streak = 0; st.unlocked = false; st.round = 1; st.level = 1;
       save();
       updateHUD();
       newRound();
@@ -530,10 +478,7 @@
     async function shareStatus(){
       const text = `Terra Institute: ${st.unlocked ? 'ACTIVE' : 'LOCKED'} | ${st.tp} TP | streak ${st.streak} | level ${st.level}`;
       try{
-        if(navigator.share){
-          await navigator.share({ title: 'Terra Institute Status', text });
-          return;
-        }
+        if(navigator.share){ await navigator.share({ title:'Terra Institute Status', text }); return; }
       } catch(e) {}
       try{
         await navigator.clipboard.writeText(text);
@@ -549,11 +494,9 @@
     document.getElementById('share').addEventListener('click', shareStatus);
     document.getElementById('reset').addEventListener('click', hardReset);
 
-    // START (auto-run)
     load();
     updateHUD();
     newRound();
   </script>
-
 </body>
 </html>
