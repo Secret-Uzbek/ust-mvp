@@ -11,7 +11,7 @@ const texts = {
     terrapedia: "Террапедия — живая эмерджентная система знаний.",
     living_index: "Living Index — ДНК Терры.",
     qdna: "QDNA кодирует смысл вне линейного хранения.",
-    institute: "Институт Фрактальной Метанауки — управление смыслом."
+    institute: "ИнстR&D центрат Фрактальной Метанауки — управление смыслом."
   },
   uz: {
     welcome: "Bilim, fan, madaniyat va kelajak uchun universal kirish.",
