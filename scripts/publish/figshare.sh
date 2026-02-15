@@ -3,7 +3,7 @@ set -euo pipefail
 
 FILE="${1:?zip file required}"
 VERSION="${2:?version required}"
-TOKEN="${FIGSHARE_TOKEN:?FIGSHARE_TOKEN secret required}"
+TOKEN="REDACTED_BY_FMP_GUARD"
 
 API="https://api.figshare.com/v2"
 AUTH=(-H "Authorization: token ${TOKEN}" -H "Content-Type: application/json")
