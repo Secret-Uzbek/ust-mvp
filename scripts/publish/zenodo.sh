@@ -5,7 +5,7 @@ FILE="${1:?zip file required}"
 VERSION="${2:?version required}"
 
 API_BASE="https://zenodo.org/api"
-TOKEN="${ZENODO_TOKEN:?ZENODO_TOKEN secret required}"
+TOKEN="REDACTED_BY_FMP_GUARD"
 
 echo "[zenodo] create deposition"
 DEP_JSON=$(curl -sS -X POST -H "Content-Type: application/json" \
