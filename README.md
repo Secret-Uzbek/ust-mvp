@@ -17,3 +17,8 @@ The site is served from `/app/` (see `index.html` redirect).
 
 ## Publish trigger
 Create a release tag, e.g. `v0.1.0` → pipeline runs.
+
+
+---
+**Identity:** a.abdukarimov@fractal-metascience.org
+**ORCID:** 0009-0000-6394-4912
