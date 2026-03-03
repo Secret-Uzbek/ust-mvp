@@ -1,43 +1,26 @@
-# 🌐 Universal Semantic Translator — MVP
+# 🌐 UST MVP
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.TODO.svg)](https://doi.org/#)
+[![ORCID](https://img.shields.io/badge/ORCID-0009-0000-6394-4912-green)](https://orcid.org/0009-0000-6394-4912)
+[![License: CC0](https://img.shields.io/badge/License-CC0%201.0-lightgrey.svg)](https://creativecommons.org/publicdomain/zero/1.0/)
+[![Live Site](secret-uzbek.github.io/ust-mvp)](https://secret-uzbek.github.io/ust-mvp)
 
-[![Live Demo](https://img.shields.io/badge/Live-UST%20Demo-blue)](https://secret-uzbek.github.io/ust-mvp)
-[![ORCID](https://img.shields.io/badge/ORCID-0009--0000--6394--4912-green)](https://orcid.org/0009-0000-6394-4912)
+> **Universal Semantic Translator MVP — live implementation of UCOM protocol.**
 
-> **Universal Semantic Translator (UST)** is a live MVP implementation of the UCOM (Universal Communication) protocol from the Fractal Metascience Paradigm. It acts as a semantic bridge between languages by operating at the level of **meaning** rather than surface linguistic form.
+## 🔬 About
+Part of the **Fractal Metascience Paradigm (FMP)** ecosystem developed by Abdurashid Abdukarimov.
+This repository implements principles of **NULLO** (Zero-Point Ontology), **PLT** (Post-Lingua Trace), and **UCOM** (Universal Communication).
 
-## 🔬 How UST Works
-
-Unlike conventional machine translation that maps surface forms, UST:
-
-1. **Decomposes** input into semantic primitives (PLT layer)
-2. **Maps** to universal semantic space (NULLO reference frame)
-3. **Re-encodes** in target language preserving deep structure (EUO assembly)
-4. **Validates** coherence via UCOM protocol
-
-## 🛠️ Technical Stack
-
-- **Frontend:** Vanilla JS + CSS (zero dependencies)
-- **Protocol:** UCOM v1.0 specification
-- **Semantic Engine:** PLT decomposition algorithm
-- **Languages:** Uzbek · Russian · English · German (expandable)
-
-## 🚀 Live Demo
-
-Try the UST at: **[secret-uzbek.github.io/ust-mvp](https://secret-uzbek.github.io/ust-mvp)**
-
-## 📐 Architecture
-
-```
-Input Text
-    ↓ [PLT Layer — semantic decomposition]
-Semantic Primitives
-    ↓ [NULLO Layer — zero-point normalization]
-Universal Semantic Space
-    ↓ [EUO Layer — target language assembly]
-Output Text
+## 📚 Citation
+```bibtex
+@misc{abdukarimov2026ustmvp,
+  author = {Abdurashid Abdukarimov},
+  title = {ust-mvp},
+  year = {2026},
+  doi = {10.5281/zenodo.TODO},
+  url = {https://github.com/Secret-Uzbek/ust-mvp}
+}
 ```
 
 ## 👤 Author
-
-**Abdurashid Abdukarimov** | Fractal Metascience Foundation  
-🔗 [ORCID](https://orcid.org/0009-0000-6394-4912) · [FMP Ecosystem](https://github.com/Secret-Uzbek)
+**Abdurashid Abdukarimov** | Fractal Metascience Foundation, Tashkent
+🔗 [ORCID](https://orcid.org/0009-0000-6394-4912) · [FMP Central](https://github.com/Secret-Uzbek/FMP-CENTRAL-REPO)
