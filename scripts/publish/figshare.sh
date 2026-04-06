@@ -11,7 +11,7 @@ AUTH=(-H "Authorization: token ${TOKEN}" -H "Content-Type: application/json")
 echo "[figshare] create article"
 ARTICLE_JSON=$(curl -sS -X POST "${API}/account/articles" "${AUTH[@]}" -d @- <<JSON
 {
-  "title": "UST MVP — Quantum Foundation (${VERSION})",
+  "title": "UST MVP вЂ” Quantum Foundation (${VERSION})",
   "description": "UST MVP release bundle produced from GitHub tag ${VERSION}.",
   "keywords": ["UST","Quantum Foundation","Fractal Metascience","Terra"],
   "defined_type": "software"
