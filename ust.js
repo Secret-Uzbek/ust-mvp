@@ -17,7 +17,7 @@ const texts = {
     welcome: "Bilim, fan, madaniyat va kelajak uchun universal kirish.",
     terrapedia: "Terrapedia — tirik bilim makoni.",
     living_index: "Living Index — Terra DNKsi.",
-    qdna: "QDNA ma'noni chiziqli bo‘lmagan holda saqlaydi.",
+    qdna: "QDNA ma'noni chiziqli bo'lmagan holda saqlaydi.",
     institute: "Fraktal Metafan Instituti — ma'no boshqaruvi."
   },
   de: {
