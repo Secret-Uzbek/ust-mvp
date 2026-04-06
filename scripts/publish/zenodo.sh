@@ -32,7 +32,7 @@ curl -sS -X PUT -H "Content-Type: application/json" \
   -d @- >/dev/null <<JSON
 {
   "metadata": {
-    "title": "UST MVP — Quantum Foundation (${VERSION})",
+    "title": "UST MVP вЂ” Quantum Foundation (${VERSION})",
     "upload_type": "software",
     "description": "UST MVP release bundle produced from GitHub tag ${VERSION}. Includes source + site artifact + checksums.",
     "creators": [{"name": "Abdukarimov, Abdurashid", "orcid": "0009-0000-6394-4912"}],
