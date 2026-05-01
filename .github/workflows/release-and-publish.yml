@@ -1,14 +1,19 @@
 name: release-and-publish
+
 on:
   push:
     tags:
-      - "v*.*.*"
-      - "v*.*"
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag, for example v1.0.1"
+        required: true
+      release_name:
+        description: "Optional human-readable release title"
+        required: false
 
 permissions:
-  security-events: write
-  contents: read
   contents: write
 
 jobs:
@@ -16,40 +21,54 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Create release bundle
+      - name: Resolve release metadata
+        id: meta
+        shell: bash
         run: |
           set -euo pipefail
-          mkdir -p release
-          zip -r "release/ust-mvp-${GITHUB_REF_NAME}.zip" . -x "*.git/*" -x "release/*"
-          sha256sum "release/ust-mvp-${GITHUB_REF_NAME}.zip" | tee "release/CHECKSUMS.txt"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag_name }}"
+            NAME="${{ github.event.inputs.release_name }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+            NAME=""
+          fi
 
-      - name: Upload release assets
+          if [ -z "$TAG" ]; then
+            echo "No tag supplied." >&2
+            exit 1
+          fi
+
+          if [ -z "$NAME" ]; then
+            NAME="${GITHUB_REPOSITORY#*/} ${TAG}"
+          fi
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Create release bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          TAG_NAME="${{ steps.meta.outputs.tag }}"
+          mkdir -p release
+          zip -r "release/${REPO_NAME}-${TAG_NAME}.zip" . -x ".git/*" -x "release/*"
+          sha256sum "release/${REPO_NAME}-${TAG_NAME}.zip" > "release/CHECKSUMS.txt"
+
+      - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.name }}
+          target_commitish: ${{ github.sha }}
           files: |
-            release/ust-mvp-${{ github.ref_name }}.zip
+            release/${{ github.event.repository.name }}-${{ steps.meta.outputs.tag }}.zip
             release/CHECKSUMS.txt
 
-      - name: Publish to Zenodo (optional)
-        if: ${{ secrets.ZENODO_TOKEN != '' }}
-        env:
-          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+      - name: Summary
         run: |
-          bash scripts/publish/zenodo.sh "release/ust-mvp-${GITHUB_REF_NAME}.zip" "${GITHUB_REF_NAME}"
-
-      - name: Publish to Figshare (optional)
-        if: ${{ secrets.FIGSHARE_TOKEN != '' }}
-        env:
-          FIGSHARE_TOKEN: ${{ secrets.FIGSHARE_TOKEN }}
-        run: |
-          bash scripts/publish/figshare.sh "release/ust-mvp-${GITHUB_REF_NAME}.zip" "${GITHUB_REF_NAME}"
-
-      - name: Cloudflare purge (optional)
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ZONE_ID != '' }}
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          CF_URLS_JSON: ${{ secrets.CLOUDFLARE_PURGE_URLS_JSON }}
-        run: |
-          bash scripts/publish/cloudflare_purge.sh
+          echo "Release bundle created for ${{ github.repository }} ${{ steps.meta.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
