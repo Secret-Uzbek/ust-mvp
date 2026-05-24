@@ -1,12 +1,13 @@
 name: deploy-pages
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
+    inputs:
+      deploy_note:
+        description: "Reason for manual Pages deployment"
+        required: false
 
 permissions:
   security-events: write
-  contents: read
   contents: read
   pages: write
   id-token: write
